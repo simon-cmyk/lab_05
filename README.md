@@ -29,8 +29,13 @@ In the first example, we will estimate the pose of a camera using motion-only bu
 
 ### Suggested experiments
 - Run the code in [ex_1_motion_only_ba.py](ex_1_motion_only_ba.py)
+Nice
+
 - Try changing the uncertainty in the pixel measurements
+More uncertainty and higher cost
+
 - Try changing the camera geometry
+Takes longer to converge with higher focal length
 
 
 ## Example 2 - Multicamera motion-only Bundle Adjustment
@@ -50,8 +55,12 @@ and `visualise_multicam_moba()` in  [visualise_ba.py](visualise_ba.py)).
 
 ### Suggested experiments
 - Run the code in [ex_2_multicamera_motion_only_ba.py](ex_2_multicamera_motion_only_ba.py)
-- Try adding more cameras!
+Nice. 
 
+- Try adding more cameras!
+Added another camera, and it worked well.
+
+![alt text](image.png)
 
 ## Example 3 - Structure-only Bundle Adjustment
 We will now let the camera poses be fixed, and instead try to estimate the position of the world points
@@ -67,7 +76,11 @@ Feel free to try to implement this yourself.
 ### Suggested experiments
 - Run the code in [ex_3_structure_only_ba.py](ex_3_structure_only_ba.py)
 - Try moving the cameras closer together.
+
   How does this influence the results?
+  The points are closer together, and the cost is lower. In the extreme I sent the cameras 6 times the length further out. The cost was higher, and the points not that close to the real points.
+
+  ![alt text](image-4.png)
 
 ## Example 4 - Full Bundle Adjustment
 Now, its time to estimate both camera poses as well as world points.
@@ -83,5 +96,12 @@ Again, feel free to implement this yourself based on the previous examples.
 ### Suggested experiments
 - Run the code in [ex_4_full_ba.py](ex_4_full_ba.py)
 - Try adding more cameras
+
+![alt text](image-3.png)
+
 - Try implementing a prior on the distance between two points, rather than a point prior (see the lecture)
 
+  Added prior of the distance between two points instead.
+  ![alt text](image-1.png)
+  By this 
+  ![alt text](image-2.png)

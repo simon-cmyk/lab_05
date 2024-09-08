@@ -9,6 +9,7 @@ from visualise_ba import visualise_multicam_moba
 
 """Example 2 - Multicamera motion-only Bundle Adjustment"""
 
+np.random.seed(42)
 
 class PrecalibratedMulticameraMotionOnlyBAObjective:
     """Implements linearisation of the multicamera motion-only BA objective function"""
@@ -91,7 +92,8 @@ def main():
     # Generate a set of camera measurements.
     true_poses_w_c = [
         PerspectiveCamera.looks_at_pose(np.array([[3, -4, 0]]).T, np.zeros((3, 1)), np.array([[0, 0, 1]]).T),
-        PerspectiveCamera.looks_at_pose(np.array([[3, 4, 0]]).T, np.zeros((3, 1)), np.array([[0, 0, 1]]).T)]
+        PerspectiveCamera.looks_at_pose(np.array([[3, 4, 0]]).T, np.zeros((3, 1)), np.array([[0, 0, 1]]).T),
+        PerspectiveCamera.looks_at_pose(np.array([[-3, -4, 0]]).T, np.zeros((3, 1)), np.array([[0, 0, 1]]).T)]
     measurements = \
         [PrecalibratedCameraMeasurementsFixedWorld.generate(camera, pose, points_w) for pose in true_poses_w_c]
 
@@ -103,7 +105,7 @@ def main():
     init_state = CompositeStateVariable(init_poses_wc)
 
     # Estimate pose in the world frame from point correspondences.
-    x, cost, A, b = levenberg_marquardt(init_state, model)
+    x, cost, A, b = levenberg_marquardt(init_state, model, max_num_it=50)
     cov_x_final = np.linalg.inv(A.T @ A)
 
     # Print covariance.

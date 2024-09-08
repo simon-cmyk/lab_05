@@ -3,12 +3,13 @@ import visgeom as vg
 
 from camera import PerspectiveCamera
 from measurements import PrecalibratedCameraMeasurementsFixedCamera
-from optim import CompositeStateVariable, levenberg_marquardt
+from optim import CompositeStateVariable, levenberg_marquardt, gauss_newton
 
 from visualise_ba import visualise_soba
 
 """Example 3 - Structure-only Bundle Adjustment"""
 
+np.random.seed(42)
 
 class PrecalibratedStructureOnlyBAObjective:
     """Implements linearisation of the structure-only BA objective function"""
@@ -87,8 +88,8 @@ def main():
 
     # Define a set of cameras.
     true_poses_w_c = [
-        PerspectiveCamera.looks_at_pose(np.array([[3, -4, 0]]).T, np.zeros((3, 1)), np.array([[0, 0, 1]]).T),
-        PerspectiveCamera.looks_at_pose(np.array([[3, 4, 0]]).T, np.zeros((3, 1)), np.array([[0, 0, 1]]).T)]
+        PerspectiveCamera.looks_at_pose(6. * np.array([[3, -4, 0]]).T, np.zeros((3, 1)), np.array([[0, 0, 1]]).T),
+        PerspectiveCamera.looks_at_pose(6.* np.array([[3, 4, 0]]).T, np.zeros((3, 1)), np.array([[0, 0, 1]]).T)]
 
     # Generate a set of camera measurements.
     measurements = \

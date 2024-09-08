@@ -8,11 +8,12 @@ from visualise_ba import visualise_full
 
 """Example 4 - Full Bundle Adjustment"""
 
+np.random.seed(42)
 
 class PrecalibratedFullBAObjective:
     """Implements linearisation of the full BA objective function"""
 
-    def __init__(self, measurements, pose1_prior, point1_prior):
+    def __init__(self, measurements, pose1_prior, dist_point1_point2_prior):
         """Constructs the objective
 
         :param measurements: A list of PrecalibratedCameraMeasurements objects, one for each camera.
@@ -21,7 +22,7 @@ class PrecalibratedFullBAObjective:
         """
         self.measurements = measurements
         self.pose1_prior = pose1_prior
-        self.point1_prior = point1_prior
+        self.dist_point1__point2_prior = dist_point1_point2_prior
 
     @staticmethod
     def extract_measurement_jacobian_wrt_pose(point_index, pose_state_c_w, point_state_w, measurement):
@@ -107,8 +108,10 @@ class PrecalibratedFullBAObjective:
         A[2 * num_cameras * num_points:2 * num_cameras * num_points + 6, :6] = np.identity(6)
         b[2 * num_cameras * num_points:2 * num_cameras * num_points + 6] = -(states.get_pose(0) - self.pose1_prior)
 
-        A[2 * num_cameras * num_points + 6:, 6 * num_cameras:6 * num_cameras + 3] = np.identity(3)
-        b[2 * num_cameras * num_points + 6:] = -(states.get_point(0) - self.point1_prior)
+        dist_ = np.linalg.norm(states.get_point(0) - states.get_point(1))
+
+        A[2 * num_cameras * num_points + 6:, 6 * num_cameras:6 * num_cameras + 3] = np.zeros((3, 1))
+        b[2 * num_cameras * num_points + 6:] = -(dist_ - self.dist_point1__point2_prior)
 
         return A, b, b.T.dot(b)
 
@@ -127,13 +130,17 @@ def main():
     # Define a set of cameras.
     true_poses_w_c = [
         PerspectiveCamera.looks_at_pose(np.array([[3, -4, 0]]).T, np.zeros((3, 1)), np.array([[0, 0, 1]]).T),
-        PerspectiveCamera.looks_at_pose(np.array([[3, 4, 0]]).T, np.zeros((3, 1)), np.array([[0, 0, 1]]).T)]
+        PerspectiveCamera.looks_at_pose(np.array([[3, 4, 0]]).T, np.zeros((3, 1)), np.array([[0, 0, 1]]).T),
+        PerspectiveCamera.looks_at_pose(np.array([[-3, -4, 0]]).T, np.zeros((3, 1)), np.array([[0, 0, 1]]).T),
+        PerspectiveCamera.looks_at_pose(np.array([[-3, 4, 0]]).T, np.zeros((3, 1)), np.array([[0, 0, 1]]).T)
+        ]
+
 
     # Generate a set of camera measurements.
     measurements = [PrecalibratedCameraMeasurements.generate(camera, pose, true_points_w) for pose in true_poses_w_c]
 
     # Construct model from measurements.
-    model = PrecalibratedFullBAObjective(measurements, true_poses_w_c[0], true_points_w[:, [0]])
+    model = PrecalibratedFullBAObjective(measurements, true_poses_w_c[0], np.linalg.norm(true_points_w[:, [0]]- true_points_w[:, [1]]))
 
     # Perturb camera poses and world points and use as initial state.
     init_poses_wc = [pose + 0.3 * np.random.randn(6, 1) for pose in true_poses_w_c]

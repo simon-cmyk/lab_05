@@ -8,6 +8,7 @@ from visualise_ba import visualise_moba
 
 """Example 1 - Motion-only Bundle Adjustment"""
 
+np.random.seed(42)
 
 class PrecalibratedMotionOnlyBAObjective:
     """Implements linearisation of motion-only BA objective function"""
